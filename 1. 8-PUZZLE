@@ -1,0 +1,44 @@
+import heapq
+
+def heuristic(state, goal):
+    return sum(abs(x // 3 - g // 3) + abs(x % 3 - g % 3) for x, g in ((state.index(i), goal.index(i)) for i in range(1, 9)))
+
+def get_neighbors(state):
+    blank = state.index(0)
+    x, y = divmod(blank, 3)
+    moves = []
+    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+        nx, ny = x + dx, y + dy
+        if 0 <= nx < 3 and 0 <= ny < 3:
+            neighbor = state[:]
+            neighbor[blank], neighbor[nx * 3 + ny] = neighbor[nx * 3 + ny], neighbor[blank]
+            moves.append(neighbor)
+    return moves
+
+def a_star(start, goal):
+    pq, visited = [(heuristic(start, goal), start, [])], set()
+    while pq:
+        _, state, path = heapq.heappop(pq)
+        if state == goal:
+            return path + [state]
+        if tuple(state) in visited:
+            continue
+        visited.add(tuple(state))
+        for neighbor in get_neighbors(state):
+            heapq.heappush(pq, (len(path) + 1 + heuristic(neighbor, goal), neighbor, path + [state]))
+    return None
+
+def print_solution(path):
+    for step, state in enumerate(path):
+        print(f"Step {step}:\n" + "\n".join(str(state[i:i+3]) for i in range(0, 9, 3)) + "\n")
+
+# Input
+start = [1, 2, 3, 4, 0, 5, 6, 7, 8]
+goal = [1, 2, 3, 4, 5, 6, 7, 8, 0]
+
+solution = a_star(start, goal)
+if solution:
+    print_solution(solution)
+else:
+    print("No solution.")
+    
