@@ -1,0 +1,10 @@
+def solve_queens(n, row=0, cols=set(), diag1=set(), diag2=set(), board=[]):
+    if row == n:
+        print("\n".join("".join(row) for row in board) + "\n")
+        return
+    for col in range(n):
+        if col not in cols and row - col not in diag1 and row + col not in diag2:
+            solve_queens(n, row + 1, cols | {col}, diag1 | {row - col}, diag2 | {row + col}, 
+                         board + [["."] * col + ["Q"] + ["."] * (n - col - 1)])
+
+solve_queens(8)
