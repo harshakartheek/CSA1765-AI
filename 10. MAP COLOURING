@@ -1,0 +1,28 @@
+def is_valid(colour, node, graph, assignment):
+    for neighbor in graph[node]:
+        if neighbor in assignment and assignment[neighbor] == colour:
+            return False
+    return True
+def map_coloring(graph, colours, assignment={}, node=0):
+    if len(assignment) == len(graph):
+        return assignment
+    nodes = list(graph.keys())
+    current_node = nodes[node]
+    for colour in colours:
+        if is_valid(colour, current_node, graph, assignment):
+            assignment[current_node] = colour
+            result = map_coloring(graph, colours, assignment, node + 1)
+            if result:
+                return result
+            del assignment[current_node]
+    return None
+graph = {
+    'A': ['B', 'C'],
+    'B': ['A', 'C', 'D'],
+    'C': ['A', 'B', 'D', 'E'],
+    'D': ['B', 'C', 'E'],
+    'E': ['C', 'D']
+}
+colours = ['Red', 'Green', 'Blue']
+solution = map_coloring(graph, colours)
+print("Map Coloring Solution:", solution)
