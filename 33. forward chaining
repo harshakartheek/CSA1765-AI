@@ -1,0 +1,55 @@
+% Base Facts
+fact(plant(rose)).
+fact(plant(tulip)).
+fact(plant(sunflower)).
+fact(needs(rose, water)).
+fact(needs(tulip, water)).
+fact(needs(sunflower, sunlight)).
+fact(location(rose, garden)).
+fact(location(tulip, garden)).
+fact(location(sunflower, backyard)).
+
+% Rules for Inference
+rule(grows(Plant)) :-
+    fact(plant(Plant)),
+    fact(needs(Plant, water)),
+    fact(location(Plant, garden)).
+
+rule(grows(Plant)) :-
+    fact(plant(Plant)),
+    fact(needs(Plant, sunlight)),
+    fact(location(Plant, backyard)).
+
+% Forward Chaining Logic
+forward_chaining :-
+    findall(NewFact, (rule(NewFact), \+ fact(NewFact)), NewFacts),
+    ( NewFacts \= [] ->
+        add_new_facts(NewFacts),
+        forward_chaining  % Continue chaining with updated facts
+    ;   write('Forward chaining complete. No more facts can be derived.'), nl ).
+
+% Helper: Add a list of new facts to the knowledge base
+add_new_facts([]).
+add_new_facts([Fact | Rest]) :-
+    assert(fact(Fact)),
+    write('Derived fact: '), write(Fact), nl,
+    add_new_facts(Rest).
+
+% Query: Check if a specific plant grows
+query_grows(Plant) :-
+    forward_chaining,
+    ( fact(grows(Plant)) ->
+        write(Plant), write(' grows.'), nl
+    ;   write(Plant), write(' does not grow.'), nl ).
+
+% Query: Display all current facts
+show_facts :-
+    write('Current facts in the knowledge base:'), nl,
+    findall(F, fact(F), Facts),
+    print_facts(Facts).
+
+% Helper: Print facts
+print_facts([]).
+print_facts([Fact | Rest]) :-
+    write('- '), write(Fact), nl,
+    print_facts(Rest).
