@@ -1,0 +1,59 @@
+% Base Facts
+fact(plant(rose)).
+fact(plant(tulip)).
+fact(plant(sunflower)).
+fact(needs(rose, water)).
+fact(needs(tulip, water)).
+fact(needs(sunflower, sunlight)).
+fact(location(rose, garden)).
+fact(location(tulip, garden)).
+fact(location(sunflower, backyard)).
+
+% Rules for Inference
+rule(grows(Plant)) :-
+    fact(plant(Plant)),
+    fact(needs(Plant, water)),
+    fact(location(Plant, garden)).
+
+rule(grows(Plant)) :-
+    fact(plant(Plant)),
+    fact(needs(Plant, sunlight)),
+    fact(location(Plant, backyard)).
+
+% Backward Chaining Logic
+backward_chaining(Goal) :-
+    fact(Goal),  % Check if the goal is a known fact
+    write('Goal '), write(Goal), write(' is a known fact.'), nl.
+
+backward_chaining(Goal) :-
+    rule(Goal),  % Check if the goal can be derived from a rule
+    write('Goal '), write(Goal), write(' can be derived using a rule.'), nl,
+    findall(Subgoal, subgoal(Goal, Subgoal), Subgoals),  % Get subgoals
+    solve_subgoals(Subgoals).  % Solve subgoals recursively
+
+% Helper: Extract subgoals for a given rule
+subgoal(Goal, Subgoal) :-
+    rule(Goal), fact(Subgoal).
+
+% Helper: Solve subgoals recursively
+solve_subgoals([]).  % Base case: no subgoals to solve
+solve_subgoals([Subgoal | Rest]) :-
+    backward_chaining(Subgoal),  % Solve the current subgoal
+    solve_subgoals(Rest).  % Solve the remaining subgoals
+
+% Query: Check if a specific plant grows
+query_grows(Plant) :-
+    backward_chaining(grows(Plant)),
+    write(Plant), write(' grows.'), nl.
+
+% Query: Display all current facts
+show_facts :-
+    write('Current facts in the knowledge base:'), nl,
+    findall(F, fact(F), Facts),
+    print_facts(Facts).
+
+% Helper: Print facts
+print_facts([]).
+print_facts([Fact | Rest]) :-
+    write('- '), write(Fact), nl,
+    print_facts(Rest).
